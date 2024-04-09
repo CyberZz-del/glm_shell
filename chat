@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from zhipuai import ZhipuAI
 from colorama import Fore, Style
 import sys
 
 def main():
-    client = ZhipuAI(api_key="5c9a2359378346339df87d578006aef2.904swMkFI5zBfBxH") 
+    client = ZhipuAI(api_key="******" )
     if len(sys.argv) == 1:
         messages=[]
         while(1):
