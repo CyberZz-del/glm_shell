@@ -19,34 +19,42 @@
 
 ### 安装步骤
 
-1. 安装zhipuai，colorama库
+1. 在官网注册，获取api_key
 
-   ```
+   [智谱AI开放平台 (bigmodel.cn)](https://open.bigmodel.cn/)
+
+2. 安装zhipuai，colorama库
+
+   ```sh
    pip install zhipuai
    pip install colorama
    ```
 
-2. 克隆项目到本地
+3. 克隆项目到本地
 
-3. 进入项目目录：
+   ```sh
+   mkdir glm_shell
+   git clone <address>
 
-   ```
+4. 进入项目目录：
+
+   ```sh
    cd glm_shell
    ```
 
-4. 运行shell脚本
+5. 运行shell脚本
 
-   ```
+   ```sh
    sudo bash create_chat.sh
    ```
 
-5. 输入合法的GLM API
+6. 输入合法的GLM API
 
 ## 使用方法
 
 ### 命令行接口
 
-```
+```sh
 chat <your input>
 ```
 

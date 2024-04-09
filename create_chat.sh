@@ -8,7 +8,7 @@ else
     echo "Illegal input."
 fi
 
-sed -i '8c\    client = ZhipuAI(api_key="'$VARIABLE'" )' ./chat
+sed -i '12c\api_key="'$VARIABLE'"' ./chat
 
 if [ $? -eq 0 ]; then
     echo "API replacement successful."
