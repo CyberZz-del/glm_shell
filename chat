@@ -5,47 +5,49 @@ from colorama import Fore, Style
 import sys
 
 def main():
-    client = ZhipuAI(api_key="2912857228b2930e8669c3138f3a3753.91jfFT0NGUWu555L") 
+    client = ZhipuAI(api_key="5c9a2359378346339df87d578006aef2.904swMkFI5zBfBxH") 
     if len(sys.argv) == 1:
-
+        messages=[]
         while(1):
             print(Fore.LIGHTYELLOW_EX+"Chat>",end='')
             print(Style.RESET_ALL, end='')
-            content=input()
-            if(content=='q'):
+            user_content=input()
+            if(user_content=='q'):
                 print(Fore.LIGHTRED_EX+"Quit Chat"+Style.RESET_ALL)
                 exit()
+            messages.append({"role": "user", "content": user_content})
             response = client.chat.completions.create(
                 model="glm-4",  
-                messages=[
-                    {"role": "user", "content": content},
-                ],
+                messages=messages,
                 stream=True,
             )
             print(Fore.LIGHTBLUE_EX+"User: ",end='')
             print(Style.RESET_ALL)
-            print(content)
+            print(user_content)
             print(Fore.LIGHTGREEN_EX+"Assistant: ",end='')
             print(Style.RESET_ALL)
+            assistant_conntent=""
             for chunk in response:
+                assistant_conntent+=chunk.choices[0].delta.content
                 print(chunk.choices[0].delta.content,end='')
+            messages.append({"role": "assistant", "content": assistant_conntent})
             print("\n(end)")
     
     else:
-        content=''
+        user_content=''
         for arg in sys.argv[1:]:
-            content+=arg+" "
+            user_content+=arg+" "
         
         response = client.chat.completions.create(
             model="glm-4",  
             messages=[
-                {"role": "user", "content": content},
+                {"role": "user", "content": user_content},
             ],
             stream=True,
         )
         print(Fore.LIGHTBLUE_EX+"User: ",end='')
         print(Style.RESET_ALL)
-        print(content)
+        print(user_content)
         print(Fore.LIGHTGREEN_EX+"Assistant: ",end='')
         print(Style.RESET_ALL)
         for chunk in response:
