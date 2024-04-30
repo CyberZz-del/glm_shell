@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from urllib import response
 from zhipuai import ZhipuAI
 from colorama import Fore, Style
 import sys
@@ -8,28 +9,7 @@ import jwt
 import requests
 import json
 
-
 api_key="********"
-
-#def generate_token(apikey: str, exp_seconds: int):
-#    try:
-#        id, secret = apikey.split(".")
-#    except Exception as e:
-#        raise Exception("invalid apikey", e)
-#
-#    payload = {
-#        "api_key": id,
-#        "exp": int(round(time.time() * 1000)) + exp_seconds * 1000,
-#        "timestamp": int(round(time.time() * 1000)),
-#    }
-#
-#    return jwt.encode(
-#        payload,
-#        secret,
-#        algorithm="HS256",
-#        headers={"alg": "HS256", "sign_type": "SIGN"},
-#    )
-
 
 class GLM_Shell():
     def __init__(self, api_key = None) -> None:
@@ -80,6 +60,55 @@ class GLM_Shell():
             algorithm="HS256",
             headers={"alg": "HS256", "sign_type": "SIGN"},
         )
+    
+    def single_chat_SDK(self):
+        client = ZhipuAI(api_key=self.api_key)
+        response = client.chat.completions.create( # type: ignore
+            model = "glm-4",
+            messages = self.message,
+            stream = True,
+        )
+        return response;
+
+    def single_turn_chat_SDK(self):
+        
+        user_content=''
+        for arg in sys.argv[1:]:
+            user_content+=arg+" "
+        
+        self.set_user_content(user_content)
+        self.add_role_message()
+        self.print_prompt()
+        response = self.single_chat_SDK()
+        assistant_content = ''
+        for chunk in response:
+            assistant_content+=chunk.choices[0].delta.content
+            print(chunk.choices[0].delta.content,end='')
+        self.set_assistant_content(assistant_content)
+        self.add_assistant_message()
+        print("\n(end)")
+
+    def multi_turns_chat_SDK(self):
+        while(1):
+            print(Fore.LIGHTYELLOW_EX+"Chat> ",end='')
+            print(Style.RESET_ALL, end='')
+            user_content=input()
+            self.set_user_content(user_content)
+            if(self.user_content == 'q'):
+                print(Fore.LIGHTRED_EX+"Quit Chat"+Style.RESET_ALL)
+                return
+            self.add_role_message()
+            self.print_prompt()
+            response = self.single_chat_SDK()
+            assistant_content = ''
+            for chunk in response:
+                assistant_content+=chunk.choices[0].delta.content
+                print(chunk.choices[0].delta.content,end='')
+            self.set_assistant_content(assistant_content)
+            self.add_assistant_message()
+            print("\n(end)")
+
+
 
     def single_chat(self):
         response = requests.post(
@@ -113,7 +142,7 @@ class GLM_Shell():
 
     def multi_turns_chat(self):
         while(1):
-            print(Fore.LIGHTYELLOW_EX+"Chat>",end='')
+            print(Fore.LIGHTYELLOW_EX+"Chat> ",end='')
             print(Style.RESET_ALL, end='')
             user_content=input()
             self.set_user_content(user_content)
@@ -132,72 +161,22 @@ class GLM_Shell():
 
 def main():
     glm_shell=GLM_Shell(api_key=api_key)
-    #client = ZhipuAI(api_key="2912857228b2930e8669c3138f3a3753.91jfFT0NGUWu555L" )
     if len(sys.argv) == 1:
+        try:
+            glm_shell.multi_turns_chat_SDK()
+        except Exception as e:
+            glm_shell.multi_turns_chat()
+        else:
+            pass
 
-        glm_shell.multi_turns_chat()
-
-        #messages=[]
-        #while(1):
-        #    print(Fore.LIGHTYELLOW_EX+"Chat>",end='')
-        #    print(Style.RESET_ALL, end='')
-        #    user_content=input()
-        #    if(user_content=='q'):
-        #        print(Fore.LIGHTRED_EX+"Quit Chat"+Style.RESET_ALL)
-        #        exit()
-        #    messages.append({"role": "user", "content": user_content})
-        #    response = client.chat.completions.create(
-        #        model="glm-4",  
-        #        messages=messages,
-        #        stream=True,
-        #    )
-        #    print(Fore.LIGHTBLUE_EX+"User: ",end='')
-        #    print(Style.RESET_ALL)
-        #    print(user_content)
-        #    print(Fore.LIGHTGREEN_EX+"Assistant: ",end='')
-        #    print(Style.RESET_ALL)
-        #    assistant_conntent=""
-        #    for chunk in response:
-        #        assistant_conntent+=chunk.choices[0].delta.content
-        #        print(chunk.choices[0].delta.content,end='')
-        #    messages.append({"role": "assistant", "content": assistant_conntent})
-        #    print("\n(end)")
     
     else:
-        
-        glm_shell.single_turn_chat()
-
-        #print(Fore.LIGHTBLUE_EX+"User: ",end='')
-        #print(Style.RESET_ALL)
-        #print(user_content)
-        #print(Fore.LIGHTGREEN_EX+"Assistant: ",end='')
-        #print(Style.RESET_ALL)
-
-        #response = requests.post(
-        #    'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-        #    headers={
-        #        "Authorization": generate_token("2912857228b2930e8669c3138f3a3753.91jfFT0NGUWu555L", 6000),
-        #        "Content-Type": "application/json"
-        #    },
-        #    data=json.dumps({
-        #        "model": 'glm-4',
-        #        "messages": [
-        #            {"role": "user", "content": user_content},
-        #        ],
-        #    })
-        #)
-
-        #response = client.chat.completions.create(
-        #    model="glm-4",  
-        #    messages=[
-        #        {"role": "user", "content": user_content},
-        #    ],
-        #    stream=True,
-        #)
-
-
-        #for chunk in response:
-        #    print(chunk.choices[0].delta.content,end='')
+        try:
+            glm_shell.single_turn_chat_SDK()
+        except Exception as e:
+            glm_shell.single_turn_chat()
+        else:
+            pass
 
 if __name__ == "__main__":
     main()
